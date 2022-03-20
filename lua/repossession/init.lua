@@ -1,5 +1,6 @@
-local path = require 'plenary.path'
+local Path = require 'plenary.path'
 local session = require 'repossession.session'
+local config = require 'repossession.config'
 
 local extract_session_name = function(name)
   if type(name) == 'table' then
@@ -8,8 +9,8 @@ local extract_session_name = function(name)
   return name
 end
 
--- cached because the user can change argc() later and
--- we only care about the value on startup
+-- caching the argc because the user can change argc()
+-- later and we only care about the value on startup
 local cached_argc = vim.fn.argc()
 local disable_auto_session = function()
   -- if current_session is non-nil it means a session
@@ -30,20 +31,27 @@ local is_safe_to_save = function()
   return true
 end
 
+local is_exiting = function()
+  if vim.v.exiting == vim.NIL then
+    return false
+  end
+  return true
+end
+
 local load_session_using_cwd = function(force)
-  session.load_session(path:new():absolute(), force)
+  session.load_session(Path:new():absolute(), force)
 end
 
 local load_session_using_name = function(name, force)
   session.load_session(name, force)
 end
 
-local save_session_by_cwd = function()
-  session.save_session(path:new():absolute())
+local save_session_using_cwd = function()
+  session.save_session(Path:new():absolute(), is_exiting)
 end
 
-local save_session_by_name = function(name)
-  session.save_session(name)
+local save_session_using_name = function(name)
+  session.save_session(name, is_exiting)
 end
 
 local load_session = function(name, force)
@@ -61,20 +69,20 @@ local save_session = function(name)
   local session_name = extract_session_name(name)
 
   if session_name == nil then
-    save_session_by_cwd()
+    save_session_using_cwd()
   else
-    save_session_by_name(session_name)
+    save_session_using_name(session_name)
   end
 end
 
 local auto_load_session = function()
-  if not disable_auto_session() then
+  if not disable_auto_session() and config.auto_load then
     load_session_using_cwd(true)
   end
 end
 
 local auto_save_session = function()
-  if is_safe_to_save() and not disable_auto_session() then
+  if is_safe_to_save() and not disable_auto_session() and config.auto_save then
     save_session(session.current_session())
   end
 end
@@ -86,4 +94,5 @@ return {
   save_session = save_session,
   delete_sessions = session.delete_sessions,
   current_session_name = session.current_session,
+  setup = config.setup,
 }

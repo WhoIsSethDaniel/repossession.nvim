@@ -1,12 +1,13 @@
-local path = require 'plenary.path'
+local Path = require 'plenary.path'
 local scan = require 'plenary.scandir'
+local config = require 'repossession.config'
 
 local encode_path = function(dir)
-  return dir:gsub(path.path.sep, '%%'):gsub('%%*$', '')
+  return dir:gsub(Path.path.sep, '%%'):gsub('%%*$', '')
 end
 
 local unencode_path = function(dir)
-  return dir:gsub('%%', path.path.sep)
+  return dir:gsub('%%', Path.path.sep)
 end
 
 local vim_escaped_path = function(p)
@@ -14,12 +15,12 @@ local vim_escaped_path = function(p)
 end
 
 local saved_sessions_dir = function()
-  return path:new(vim.fn.stdpath 'data', 'sessions')
+  return config.session_dir
 end
 
 local session_path_from_name = function(session_name)
   local encoded_name = encode_path(session_name)
-  return path:new(saved_sessions_dir(), encoded_name .. '.vim')
+  return Path:new(saved_sessions_dir(), encoded_name .. '.vim')
 end
 
 local current = {
@@ -66,7 +67,7 @@ local delete_sessions = function(session_names)
   end
 end
 
-local save_session = function(session_name)
+local save_session = function(session_name, final)
   if current['loading'] then
     return
   end
@@ -130,7 +131,7 @@ local complete_sessions = function()
   local session_paths = scan.scan_dir(saved_sessions_dir():absolute(), { depth = 1, add_dirs = false })
   local session_names = {}
   for _, session_path in ipairs(session_paths) do
-    local name = unencode_path(path:new(session_path):name()):gsub('%.vim$', '')
+    local name = unencode_path(Path:new(session_path):name()):gsub('%.vim$', '')
     table.insert(session_names, name)
   end
   return table.concat(session_names, '\n')
