@@ -44,7 +44,6 @@ local dir_is_in_list = function(dir, list)
   for _, ldir in pairs(list) do
     ldir = Path:new(ldir)
     if ldir:absolute() == dir:absolute() then
-      print 'true'
       return true
     end
   end
