@@ -38,11 +38,13 @@ local is_exiting = function()
   return true
 end
 
-local is_in_list = function(dir, list)
+local dir_is_in_list = function(dir, list)
+  dir = dir:gsub(Path.path.sep .. '*$', '')
   dir = Path:new(dir)
   for _, ldir in pairs(list) do
     ldir = Path:new(ldir)
     if ldir:absolute() == dir:absolute() then
+      print 'true'
       return true
     end
   end
@@ -51,9 +53,9 @@ end
 
 local dir_is_acceptable = function(dir)
   if #config.whitelist_dirs > 0 then
-    return is_in_list(dir, config.whitelist_dirs)
+    return dir_is_in_list(dir, config.whitelist_dirs)
   end
-  if is_in_list(dir, config.blacklist_dirs) then
+  if dir_is_in_list(dir, config.blacklist_dirs) then
     return false
   end
   return true
