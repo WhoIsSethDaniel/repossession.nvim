@@ -2,7 +2,6 @@ local path = require 'plenary.path'
 local scan = require 'plenary.scandir'
 
 local encode_path = function(dir)
-  print(dir)
   return dir:gsub(path.path.sep, '%%'):gsub('%%*$', '')
 end
 
@@ -45,7 +44,6 @@ end
 
 local wipe_all_buffers = function()
   local this = vim.api.nvim_get_current_buf()
-  print(string.format('this: %d', this))
   for _, buffer in ipairs(vim.api.nvim_list_bufs()) do
     if vim.api.nvim_buf_is_valid(buffer) and this ~= buffer then
       vim.api.nvim_buf_delete(buffer, { force = true })
@@ -114,7 +112,9 @@ local load_session = function(session_name, force_load)
   -- can still fail if some unsaved buffers are unnamed
   vim.api.nvim_command 'silent wall'
 
-  -- gotta do this outside of the schedule
+  -- gotta do this outside of the schedule;
+  -- this kills all clients for all buffers;
+  -- see :h vim.lsp.stop_client()
   vim.lsp.stop_client(vim.lsp.get_active_clients())
 
   current['loading'] = true

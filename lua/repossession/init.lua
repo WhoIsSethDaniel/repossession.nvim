@@ -8,8 +8,12 @@ local extract_session_name = function(name)
   return name
 end
 
+-- cached because the user can change argc() later and
+-- we only care about the value on startup
 local cached_argc = vim.fn.argc()
-local disable_auto_load = function()
+local disable_auto_session = function()
+  -- if current_session is non-nil it means a session
+  -- has been loaded and we should be auto-saving it
   if session.current_session() ~= nil then
     return false
   end
@@ -64,13 +68,13 @@ local save_session = function(name)
 end
 
 local auto_load_session = function()
-  if not disable_auto_load() then
+  if not disable_auto_session() then
     load_session_using_cwd(true)
   end
 end
 
 local auto_save_session = function()
-  if is_safe_to_save() and not disable_auto_load() then
+  if is_safe_to_save() and not disable_auto_session() then
     save_session(session.current_session())
   end
 end
