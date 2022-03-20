@@ -18,7 +18,7 @@ command!       -nargs=+ -complete=custom,s:StoredSessionsComplete SessionDelete 
 command!       -nargs=? -complete=custom,s:StoredSessionsComplete SessionSave lua require'repossession'.save_session({<f-args>})
 
 function! s:StoredSessionsComplete(arg,line,pos)
-    return luaeval("require'repossession'.complete_sessions()")
+    return luaeval("require'repossession.session'.complete_sessions()")
 endfunction
 
 augroup repossession

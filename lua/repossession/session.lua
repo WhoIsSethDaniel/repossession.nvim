@@ -2,7 +2,8 @@ local path = require 'plenary.path'
 local scan = require 'plenary.scandir'
 
 local encode_path = function(dir)
-  return dir:gsub(path.path.sep, '%%')
+  print(dir)
+  return dir:gsub(path.path.sep, '%%'):gsub('%%*$', '')
 end
 
 local unencode_path = function(dir)
@@ -19,7 +20,7 @@ end
 
 local session_path_from_name = function(session_name)
   local encoded_name = encode_path(session_name)
-  return path:new(saved_sessions_dir(), encoded_name)
+  return path:new(saved_sessions_dir(), encoded_name .. '.vim')
 end
 
 local current = {
@@ -44,8 +45,9 @@ end
 
 local wipe_all_buffers = function()
   local this = vim.api.nvim_get_current_buf()
+  print(string.format('this: %d', this))
   for _, buffer in ipairs(vim.api.nvim_list_bufs()) do
-    if vim.api.nvim_buf_is_valid(buffer) and current ~= buffer then
+    if vim.api.nvim_buf_is_valid(buffer) and this ~= buffer then
       vim.api.nvim_buf_delete(buffer, { force = true })
     end
   end
@@ -112,9 +114,11 @@ local load_session = function(session_name, force_load)
   -- can still fail if some unsaved buffers are unnamed
   vim.api.nvim_command 'silent wall'
 
+  -- gotta do this outside of the schedule
+  vim.lsp.stop_client(vim.lsp.get_active_clients())
+
   current['loading'] = true
   vim.schedule(function()
-    vim.lsp.stop_client(vim.lsp.get_active_clients())
     wipe_all_buffers()
     vim.api.nvim_command('silent source ' .. vim_escaped_path(session_path:absolute()))
     set_current_session(session_name)
@@ -126,7 +130,7 @@ local complete_sessions = function()
   local session_paths = scan.scan_dir(saved_sessions_dir():absolute(), { depth = 1, add_dirs = false })
   local session_names = {}
   for _, session_path in ipairs(session_paths) do
-    local name = unencode_path(path:new(session_path):name())
+    local name = unencode_path(path:new(session_path):name()):gsub('%.vim$', '')
     table.insert(session_names, name)
   end
   return table.concat(session_names, '\n')
