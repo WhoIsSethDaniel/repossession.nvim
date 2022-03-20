@@ -38,58 +38,66 @@ local is_exiting = function()
   return true
 end
 
-local load_session_using_cwd = function(force)
-  session.load_session(Path:new():absolute(), force)
+local is_in_list = function(dir, list)
+  dir = Path:new(dir)
+  for _, ldir in pairs(list) do
+    ldir = Path:new(ldir)
+    if ldir:absolute() == dir:absolute() then
+      return true
+    end
+  end
+  return false
 end
 
-local load_session_using_name = function(name, force)
-  session.load_session(name, force)
-end
-
-local save_session_using_cwd = function()
-  session.save_session(Path:new():absolute(), is_exiting)
-end
-
-local save_session_using_name = function(name)
-  session.save_session(name, is_exiting)
+local dir_is_acceptable = function(dir)
+  if #config.whitelist_dirs > 0 then
+    return is_in_list(dir, config.whitelist_dirs)
+  end
+  if is_in_list(dir, config.blacklist_dirs) then
+    return false
+  end
+  return true
 end
 
 local load_session = function(name, force)
   local session_name = extract_session_name(name)
-  local force_load = force ~= '!' and true or false
-
-  if session_name == nil then
-    load_session_using_cwd(force_load)
-  else
-    load_session_using_name(session_name, force_load)
+  if force == '!' then
+    force = true
+  elseif force == '' then
+    force = false
   end
+  session.load_session(session_name, force)
 end
 
 local save_session = function(name)
   local session_name = extract_session_name(name)
-
-  if session_name == nil then
-    save_session_using_cwd()
-  else
-    save_session_using_name(session_name)
-  end
+  session.save_session(session_name)
 end
 
 local auto_load_session = function()
-  if not disable_auto_session() and config.auto_load then
-    load_session_using_cwd(true)
+  local session_name = Path:new():absolute()
+  if not disable_auto_session() and config.auto_load and dir_is_acceptable(session_name) then
+    load_session(session_name, true)
   end
 end
 
 local auto_save_session = function()
-  if is_safe_to_save() and not disable_auto_session() and config.auto_save then
-    save_session(session.current_session())
+  local session_name = session.current_session() or Path:new():absolute()
+  if is_safe_to_save() and not disable_auto_session() and config.auto_save and dir_is_acceptable(session_name) then
+    save_session(session_name)
+  end
+end
+
+local continuous_save_session = function()
+  if config.continuous_save then
+    auto_save_session()
   end
 end
 
 return {
   auto_load_session = auto_load_session,
   auto_save_session = auto_save_session,
+  continuous_save_session = continuous_save_session,
   load_session = load_session,
   save_session = save_session,
   delete_sessions = session.delete_sessions,

@@ -4,13 +4,11 @@ local config = {}
 
 local defaults = {
   auto_load = false,
-  auto_save = true,
+  auto_save = false,
   continuous_save = false,
   session_dir = Path:new(vim.fn.stdpath 'data', 'sessions'):absolute(),
-  ignore_ft = {},
-  ignore_bt = {},
-  whitelist = {},
-  blacklist = {},
+  whitelist_dirs = {},
+  blacklist_dirs = {},
 }
 
 function config.setup(conf)
@@ -23,10 +21,8 @@ function config.setup(conf)
     auto_save = { defaults.auto_save, 'b' },
     continuous_save = { defaults.continuous_save, 'b' },
     session_dir = { defaults.session_dir, 't' },
-    ignore_ft = { defaults.ignore_ft, 't' },
-    ignore_bt = { defaults.ignore_bt, 't' },
-    whitelist = { defaults.whitelist, 't' },
-    blacklist = { defaults.blacklist, 't' },
+    whitelist_dirs = { defaults.whitelist_dirs, 't' },
+    blacklist_dirs = { defaults.blacklist_dirs, 't' },
   }
   setmetatable(config, { __index = defaults })
 end

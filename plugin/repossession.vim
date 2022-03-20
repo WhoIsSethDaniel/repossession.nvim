@@ -11,8 +11,6 @@ let g:loaded_repossession = v:true
 let s:cpo_save = &cpo
 set cpo&vim
 
-" command! -bang -nargs=1 -complete=file SessionRestoreFromFile lua require'repossession'.load_sesion({f-args})
-" command!       -nargs=1 -complete=file SessionSaveToFile lua require'repossession'.save_session({f-args})
 command! -bang -nargs=? -complete=custom,s:StoredSessionsComplete SessionRestore lua require'repossession'.load_session({<f-args>}, <q-bang>)
 command!       -nargs=+ -complete=custom,s:StoredSessionsComplete SessionDelete lua require'repossession'.delete_sessions({<f-args>})
 command!       -nargs=? -complete=custom,s:StoredSessionsComplete SessionSave lua require'repossession'.save_session({<f-args>})
@@ -24,7 +22,7 @@ endfunction
 augroup repossession
     autocmd VimEnter * ++nested lua require'repossession'.auto_load_session()
     autocmd VimLeavePre * lua require'repossession'.auto_save_session()
-    autocmd BufEnter * lua require'repossession'.auto_save_session()
+    autocmd BufEnter * lua require'repossession'.continuous_save_session()
     autocmd StdinReadPre * let g:read_from_stdin = v:true
 augroup END
 

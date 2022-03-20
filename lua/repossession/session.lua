@@ -67,7 +67,7 @@ local delete_sessions = function(session_names)
   end
 end
 
-local save_session = function(session_name, final)
+local save_session = function(session_name)
   if current['loading'] then
     return
   end
