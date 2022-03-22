@@ -11,9 +11,9 @@ let g:loaded_repossession = v:true
 let s:cpo_save = &cpo
 set cpo&vim
 
-command! -bang -nargs=? -complete=custom,s:StoredSessionsComplete SessionRestore lua require'repossession'.load_session({<f-args>}, <q-bang>)
-command!       -nargs=+ -complete=custom,s:StoredSessionsComplete SessionDelete lua require'repossession'.delete_sessions({<f-args>})
-command!       -nargs=? -complete=custom,s:StoredSessionsComplete SessionSave lua require'repossession'.save_session({<f-args>})
+command! -bang -nargs=? -complete=customlist,s:StoredSessionsComplete SessionRestore lua require'repossession'.load_session({<f-args>}, <q-bang>)
+command!       -nargs=+ -complete=customlist,s:StoredSessionsComplete SessionDelete lua require'repossession'.delete_sessions({<f-args>})
+command!       -nargs=? -complete=customlist,s:StoredSessionsComplete SessionSave lua require'repossession'.save_session({<f-args>})
 
 function! s:StoredSessionsComplete(arg,line,pos)
     return luaeval("require'repossession.session'.complete_sessions()")

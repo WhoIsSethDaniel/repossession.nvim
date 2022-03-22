@@ -134,7 +134,7 @@ local complete_sessions = function()
     local name = unencode_path(Path:new(session_path):name()):gsub('%.vim$', '')
     table.insert(session_names, name)
   end
-  return table.concat(session_names, '\n')
+  return session_names
 end
 
 return {
