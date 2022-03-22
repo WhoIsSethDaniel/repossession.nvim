@@ -142,5 +142,5 @@ return {
   complete_sessions = complete_sessions,
   save_session = save_session,
   load_session = load_session,
-  delete_session = delete_sessions,
+  delete_sessions = delete_sessions,
 }
