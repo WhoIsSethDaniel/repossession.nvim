@@ -4,3 +4,4 @@
 - [ ] tests
 - [ ] async
 - [ ] fill out README
+- [ ] status

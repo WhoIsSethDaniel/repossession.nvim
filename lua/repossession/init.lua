@@ -46,7 +46,6 @@ local dir_is_in_list = function(dir, list)
   dir = dir:gsub(Path.path.sep .. '*$', '')
   dir = Path:new(dir)
   for _, ldir in pairs(list) do
-    ldir = Path:new(ldir)
     if ldir:absolute() == dir:absolute() then
       return true
     end
@@ -54,11 +53,30 @@ local dir_is_in_list = function(dir, list)
   return false
 end
 
-local dir_is_acceptable = function(dir)
-  if #config.whitelist_dirs > 0 then
-    return dir_is_in_list(dir, config.whitelist_dirs)
+local cached_lists = {}
+local dir_list = function(name, list)
+  if cached_lists[name] then
+    return cached_lists[name]
   end
-  if dir_is_in_list(dir, config.blacklist_dirs) then
+  cached_lists[name] = {}
+  for _, dir in ipairs(list) do
+    for _, gdir in
+      ipairs(vim.tbl_filter(function(f)
+        return vim.fn.isdirectory(f) > 0 and true or false
+      end, vim.fn.glob(dir, _, true)))
+    do
+      table.insert(cached_lists[name], Path:new(gdir))
+    end
+  end
+  return cached_lists[name]
+end
+
+local dir_is_acceptable = function(dir)
+  local wl = dir_list('wl', config.whitelist_dirs)
+  if #wl > 0 then
+    return dir_is_in_list(dir, dir_list('wl', wl))
+  end
+  if dir_is_in_list(dir, dir_list('bl', config.blacklist_dirs)) then
     return false
   end
   return true
