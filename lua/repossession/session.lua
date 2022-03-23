@@ -23,6 +23,23 @@ local session_path_from_name = function(session_name)
   return Path:new(saved_sessions_dir(), encoded_name .. '.vim')
 end
 
+local run_hook = function(name)
+  local cmd = config.hooks[name]
+  if not cmd then
+    return
+  end
+
+  local ok, result
+  if type(cmd) == 'function' then
+    ok, result = pcall(cmd)
+  else
+    ok, result = pcall(vim.cmd, cmd)
+  end
+  if not ok then
+    vim.nvim_err_writeln(string.format('hook %s had a problem during run: %s', name, result))
+  end
+end
+
 local current = {
   loading = false,
   name = nil,
@@ -66,6 +83,7 @@ local wipe_ignored_buffers = function()
 end
 
 local delete_sessions = function(session_names)
+  run_hook 'pre_delete_session'
   for _, session_name in ipairs(session_names) do
     local session_path = session_path_from_name(session_name)
 
@@ -77,6 +95,7 @@ local delete_sessions = function(session_names)
       session_path:rm()
     end
   end
+  run_hook 'post_delete_session'
 end
 
 local save_session = function(session_name, filter)
@@ -104,10 +123,14 @@ local save_session = function(session_name, filter)
     wipe_ignored_buffers()
   end
 
-  local ok, _ = pcall(vim.api.nvim_command, 'mksession! ' .. vim_escaped_path(session_path:absolute()))
+  run_hook 'pre_save_session'
+
+  local ok, result = pcall(vim.api.nvim_command, 'mksession! ' .. vim_escaped_path(session_path:absolute()))
   if not ok then
-    vim.api.nvim_err_writeln(string.format('Failed to save session: %s', session_name))
+    vim.api.nvim_err_writeln(string.format('Failed to save session: %s, reason: %s', session_name, result))
   end
+
+  run_hook 'post_save_session'
 
   vim.opt.sessionoptions = oldopts
 end
@@ -140,11 +163,13 @@ local load_session = function(session_name, force_load)
   current['loading'] = true
   vim.schedule(function()
     wipe_all_buffers()
-    local ok, _ = pcall(vim.api.nvim_command, 'silent source ' .. vim_escaped_path(session_path:absolute()))
+    run_hook 'pre_load_session'
+    local ok, result = pcall(vim.api.nvim_command, 'silent source ' .. vim_escaped_path(session_path:absolute()))
     if not ok then
-      vim.api.nvim_err_writeln(string.format('Failed to restore session: %s', session_name))
+      vim.api.nvim_err_writeln(string.format('Failed to restore session: %s, reason: %s', session_name, result))
     end
     set_current_session(session_name)
+    run_hook 'post_load_session'
     current['loading'] = false
   end)
 end
