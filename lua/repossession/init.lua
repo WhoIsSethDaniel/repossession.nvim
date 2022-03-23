@@ -72,7 +72,7 @@ end
 
 local save_session = function(name)
   local session_name = extract_session_name(name)
-  session.save_session(session_name)
+  session.save_session(session_name, is_exiting())
 end
 
 local auto_load_session = function()

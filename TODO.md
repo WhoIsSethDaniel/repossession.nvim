@@ -1,6 +1,9 @@
-* hooks
-* telescope integration
-	* selection
-	* deletion
-* ability to disable plugin
-* ft/bt ignore
+- [ ] hooks
+- [ ] telescope integration
+    - [ ] selection
+    - [ ] deletion
+- [ ] ability to disable plugin in config and in editor
+- [x] ft/bt ignore
+- [ ] auto_load/auto_save/continuous_save
+    - [x] if auto_save is false then continuous_save should be false
+    - [ ] if auto_load is off should auto_save be off? or vice-versa? what does each setting mean?

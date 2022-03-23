@@ -53,6 +53,18 @@ local wipe_all_buffers = function()
   vim.api.nvim_buf_delete(this, { force = true })
 end
 
+local wipe_ignored_buffers = function()
+  for _, buffer in ipairs(vim.api.nvim_list_bufs()) do
+    if vim.api.nvim_buf_is_valid(buffer) then
+      local ft = vim.api.nvim_buf_get_option(buffer, 'filetype')
+      local bt = vim.api.nvim_buf_get_option(buffer, 'buftype')
+      if vim.tbl_contains(config.ignore_ft, ft) or vim.tbl_contains(config.ignore_bt, bt) then
+        vim.api.nvim_buf_delete(buffer, { force = true })
+      end
+    end
+  end
+end
+
 local delete_sessions = function(session_names)
   for _, session_name in ipairs(session_names) do
     local session_path = session_path_from_name(session_name)
@@ -67,7 +79,7 @@ local delete_sessions = function(session_names)
   end
 end
 
-local save_session = function(session_name)
+local save_session = function(session_name, filter)
   if current['loading'] then
     return
   end
@@ -88,7 +100,14 @@ local save_session = function(session_name)
   vim.opt.sessionoptions:remove 'blank'
   vim.opt.sessionoptions:remove 'options'
 
-  vim.api.nvim_command('mksession! ' .. vim_escaped_path(session_path:absolute()))
+  if filter then
+    wipe_ignored_buffers()
+  end
+
+  local ok, _ = pcall(vim.api.nvim_command, 'mksession! ' .. vim_escaped_path(session_path:absolute()))
+  if not ok then
+    vim.api.nvim_err_writeln(string.format('Failed to save session: %s', session_name))
+  end
 
   vim.opt.sessionoptions = oldopts
 end
@@ -121,7 +140,10 @@ local load_session = function(session_name, force_load)
   current['loading'] = true
   vim.schedule(function()
     wipe_all_buffers()
-    vim.api.nvim_command('silent source ' .. vim_escaped_path(session_path:absolute()))
+    local ok, _ = pcall(vim.api.nvim_command, 'silent source ' .. vim_escaped_path(session_path:absolute()))
+    if not ok then
+      vim.api.nvim_err_writeln(string.format('Failed to restore session: %s', session_name))
+    end
     set_current_session(session_name)
     current['loading'] = false
   end)
