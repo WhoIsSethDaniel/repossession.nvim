@@ -4,7 +4,6 @@ local config = {}
 
 local defaults = {
   auto = false,
-  continuous_save = false,
   session_dir = Path:new(vim.fn.stdpath 'data', 'sessions'):absolute(),
   whitelist_dirs = {},
   blacklist_dirs = {},
@@ -20,7 +19,6 @@ function config.setup(conf)
   end
   vim.validate {
     auto = { defaults.auto, 'b' },
-    continuous_save = { defaults.continuous_save, 'b' },
     session_dir = { defaults.session_dir, 't' },
     whitelist_dirs = { defaults.whitelist_dirs, 't' },
     blacklist_dirs = { defaults.blacklist_dirs, 't' },

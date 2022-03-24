@@ -60,9 +60,11 @@ local dir_list = function(name, list)
   end
   cached_lists[name] = {}
   for _, dir in ipairs(list) do
-    for _, gdir in ipairs(vim.tbl_filter(function(f)
-      return vim.fn.isdirectory(f) > 0 and true or false
-    end, vim.fn.glob(dir, _, true))) do
+    for _, gdir in
+      ipairs(vim.tbl_filter(function(f)
+        return vim.fn.isdirectory(f) > 0 and true or false
+      end, vim.fn.glob(dir, _, true)))
+    do
       table.insert(cached_lists[name], Path:new(gdir))
     end
   end
@@ -110,9 +112,7 @@ local auto_save_session = function()
 end
 
 local continuous_save_session = function()
-  if config.continuous_save then
-    auto_save_session()
-  end
+  auto_save_session()
 end
 
 return {

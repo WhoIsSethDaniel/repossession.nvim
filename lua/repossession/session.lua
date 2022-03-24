@@ -162,8 +162,8 @@ local load_session = function(session_name, force_load)
 
   current['loading'] = true
   vim.schedule(function()
-    wipe_all_buffers()
     run_hook 'pre_load_session'
+    wipe_all_buffers()
     local ok, result = pcall(vim.api.nvim_command, 'silent source ' .. vim_escaped_path(session_path:absolute()))
     if not ok then
       vim.api.nvim_err_writeln(string.format('Failed to restore session: %s, reason: %s', session_name, result))
