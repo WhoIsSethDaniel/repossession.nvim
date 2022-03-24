@@ -1,6 +1,7 @@
 - [ ] telescope integration
     - [x] selection
     - [ ] deletion
+- [ ] occasional but repeatable odd issues when switching between sessions
 - [ ] tests
 - [ ] async
 - [ ] fill out README
