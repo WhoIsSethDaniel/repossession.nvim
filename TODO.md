@@ -1,5 +1,5 @@
 - [ ] telescope integration
-    - [ ] selection
+    - [x] selection
     - [ ] deletion
 - [ ] tests
 - [ ] async

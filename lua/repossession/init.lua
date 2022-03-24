@@ -14,7 +14,7 @@ end
 local cached_argc = vim.fn.argc()
 local auto_session_enabled = function()
   -- if current_session is non-nil it means a session
-  -- has been loaded and we should be auto-saving it;
+  -- has been loaded and we should be auto-saving it
   -- even if config.auto is false
   if session.current_session() ~= nil then
     return true
@@ -60,11 +60,9 @@ local dir_list = function(name, list)
   end
   cached_lists[name] = {}
   for _, dir in ipairs(list) do
-    for _, gdir in
-      ipairs(vim.tbl_filter(function(f)
-        return vim.fn.isdirectory(f) > 0 and true or false
-      end, vim.fn.glob(dir, _, true)))
-    do
+    for _, gdir in ipairs(vim.tbl_filter(function(f)
+      return vim.fn.isdirectory(f) > 0 and true or false
+    end, vim.fn.glob(dir, _, true))) do
       table.insert(cached_lists[name], Path:new(gdir))
     end
   end
@@ -126,4 +124,5 @@ return {
   delete_sessions = session.delete_sessions,
   current_session_name = session.current_session,
   setup = config.setup,
+  complete_sessions = session.complete_sessions,
 }
