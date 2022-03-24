@@ -2,6 +2,8 @@
     - [x] selection
     - [ ] deletion
 - [ ] occasional but repeatable odd issues when switching between sessions
+    - async error having to do with invalid buffer
+- [ ] when saving make certain there are buffers that can be saved
 - [ ] tests
 - [ ] async
 - [ ] fill out README
