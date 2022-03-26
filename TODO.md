@@ -3,7 +3,7 @@
     - [ ] deletion
 - [ ] occasional but repeatable odd issues when switching between sessions
     - async error having to do with invalid buffer
-- [ ] when saving make certain there are buffers that can be saved
+- [ ] cleanup config
 - [ ] tests
 - [ ] async
 - [ ] fill out README

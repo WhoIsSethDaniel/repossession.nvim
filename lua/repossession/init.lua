@@ -4,9 +4,17 @@ local config = require 'repossession.config'
 
 local extract_session_name = function(name)
   if type(name) == 'table' then
-    return name[1]
+    name = name[1]
   end
-  return name
+  return name or Path:new():absolute()
+end
+
+local cached_cwd
+local set_session_cwd = function()
+  cached_cwd = vim.fn.getcwd()
+end
+local session_cwd = function()
+  return cached_cwd
 end
 
 -- caching the argc because the user can change argc()
@@ -18,6 +26,9 @@ local auto_session_enabled = function()
   -- even if config.auto is false
   if session.current_session() ~= nil then
     return true
+  end
+  if session_cwd() ~= vim.fn.getcwd() then
+    return false
   end
   if not config.auto then
     return false
@@ -60,11 +71,9 @@ local dir_list = function(name, list)
   end
   cached_lists[name] = {}
   for _, dir in ipairs(list) do
-    for _, gdir in
-      ipairs(vim.tbl_filter(function(f)
-        return vim.fn.isdirectory(f) > 0 and true or false
-      end, vim.fn.glob(dir, _, true)))
-    do
+    for _, gdir in ipairs(vim.tbl_filter(function(f)
+      return vim.fn.isdirectory(f) > 0 and true or false
+    end, vim.fn.glob(dir, _, true))) do
       table.insert(cached_lists[name], Path:new(gdir))
     end
   end
@@ -89,7 +98,9 @@ local load_session = function(name, force)
   elseif force == '' then
     force = false
   end
-  session.load_session(session_name, force)
+  session.load_session(session_name, force, function()
+    set_session_cwd()
+  end)
 end
 
 local save_session = function(name)

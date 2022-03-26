@@ -60,26 +60,45 @@ local is_safe_to_load = function()
   return true
 end
 
-local wipe_all_buffers = function()
-  local this = vim.api.nvim_get_current_buf()
+local is_ignored_buffer = function(buffer)
+  local ft = vim.api.nvim_buf_get_option(buffer, 'filetype')
+  local bt = vim.api.nvim_buf_get_option(buffer, 'buftype')
+  if vim.tbl_contains(config.ignore_ft, ft) or vim.tbl_contains(config.ignore_bt, bt) then
+    return true
+  end
+  if bt ~= '' and bt ~= 'terminal' then
+    return true
+  end
+  return false
+end
+
+local buffers_status = function()
+  local status = {
+    savable = {},
+    ignored = {},
+  }
   for _, buffer in ipairs(vim.api.nvim_list_bufs()) do
-    if vim.api.nvim_buf_is_valid(buffer) and this ~= buffer then
-      vim.api.nvim_buf_delete(buffer, { force = true })
+    if vim.api.nvim_buf_is_valid(buffer) and is_ignored_buffer(buffer) then
+      table.insert(status.ignored, buffer)
+    else
+      table.insert(status.savable, buffer)
     end
   end
-  vim.api.nvim_buf_delete(this, { force = true })
+  return status
+end
+
+local wipe_buffers = function(buffers)
+  for _, buffer in ipairs(buffers) do
+    vim.api.nvim_buf_delete(buffer, { force = true })
+  end
 end
 
 local wipe_ignored_buffers = function()
-  for _, buffer in ipairs(vim.api.nvim_list_bufs()) do
-    if vim.api.nvim_buf_is_valid(buffer) then
-      local ft = vim.api.nvim_buf_get_option(buffer, 'filetype')
-      local bt = vim.api.nvim_buf_get_option(buffer, 'buftype')
-      if vim.tbl_contains(config.ignore_ft, ft) or vim.tbl_contains(config.ignore_bt, bt) then
-        vim.api.nvim_buf_delete(buffer, { force = true })
-      end
-    end
-  end
+  wipe_buffers(buffers_status().ignored)
+end
+
+local wipe_all_buffers = function()
+  wipe_buffers(vim.api.nvim_list_bufs())
 end
 
 local delete_sessions = function(session_names)
@@ -135,7 +154,7 @@ local save_session = function(session_name, filter)
   vim.opt.sessionoptions = oldopts
 end
 
-local load_session = function(session_name, force_load)
+local load_session = function(session_name, force_load, cb)
   local session_path = session_path_from_name(session_name)
 
   if not session_path:exists() then
@@ -169,6 +188,9 @@ local load_session = function(session_name, force_load)
       vim.api.nvim_err_writeln(string.format('Failed to restore session: %s, reason: %s', session_name, result))
     end
     set_current_session(session_name)
+    if cb then
+      cb()
+    end
     run_hook 'post_load_session'
     current['loading'] = false
   end)
