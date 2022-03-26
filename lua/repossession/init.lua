@@ -9,7 +9,7 @@ local extract_session_name = function(name)
   return name or Path:new():absolute()
 end
 
-local cached_cwd
+local cached_cwd = vim.fn.getcwd()
 local set_session_cwd = function()
   cached_cwd = vim.fn.getcwd()
 end
@@ -71,9 +71,11 @@ local dir_list = function(name, list)
   end
   cached_lists[name] = {}
   for _, dir in ipairs(list) do
-    for _, gdir in ipairs(vim.tbl_filter(function(f)
-      return vim.fn.isdirectory(f) > 0 and true or false
-    end, vim.fn.glob(dir, _, true))) do
+    for _, gdir in
+      ipairs(vim.tbl_filter(function(f)
+        return vim.fn.isdirectory(f) > 0 and true or false
+      end, vim.fn.glob(dir, _, true)))
+    do
       table.insert(cached_lists[name], Path:new(gdir))
     end
   end
