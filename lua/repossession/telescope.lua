@@ -30,10 +30,23 @@ M['sessions'] = function(opts)
         local selection = action_state.get_selected_entry()
         session.load_session(selection)
       end)
-      actions.remove_selection:replace(function()
-        local selection = action_state.get_selected_entry()
-        session.delete_session(selection)
-      end)
+      actions.remove_selection:enhance {
+        post = function()
+          local selection = action_state.get_selected_entry()
+          session.delete_sessions(selection)
+
+          -- redraw with new input
+          local picker = action_state.get_current_picker(prompt_bufnr)
+          for i, v in pairs(picker.finder.results) do
+            if v == selection then
+              table.remove(picker.finder.results, i)
+            end
+          end
+          picker:refresh()
+        end,
+      }
+      map('i', '<C-d>', actions.remove_selection)
+      map('n', '<C-d>', actions.remove_selection)
       return true
     end,
   }):find()
