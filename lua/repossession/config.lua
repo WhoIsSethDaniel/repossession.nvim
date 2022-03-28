@@ -13,20 +13,20 @@ local defaults = {
 }
 
 function config.setup(conf)
-  defaults = vim.tbl_deep_extend('force', defaults, conf or {})
-  if type(defaults.session_dir) == 'string' then
-    defaults.session_dir = Path:new(defaults.session_dir)
+  local new = vim.tbl_deep_extend('force', defaults, conf or {})
+  if type(new.session_dir) == 'string' then
+    new.session_dir = Path:new(new.session_dir)
   end
   vim.validate {
-    auto = { defaults.auto, 'b' },
-    session_dir = { defaults.session_dir, 't' },
-    whitelist_dirs = { defaults.whitelist_dirs, 't' },
-    blacklist_dirs = { defaults.blacklist_dirs, 't' },
-    ignore_ft = { defaults.ignore_ft, 't' },
-    ignore_bt = { defaults.ignore_bt, 't' },
-    hooks = { defaults.hooks, 't' },
+    auto = { new.auto, 'b' },
+    session_dir = { new.session_dir, 't' },
+    whitelist_dirs = { new.whitelist_dirs, 't' },
+    blacklist_dirs = { new.blacklist_dirs, 't' },
+    ignore_ft = { new.ignore_ft, 't' },
+    ignore_bt = { new.ignore_bt, 't' },
+    hooks = { new.hooks, 't' },
   }
-  setmetatable(config, { __index = defaults })
+  setmetatable(config, { __index = new })
 end
 
 setmetatable(config, { __index = defaults })
