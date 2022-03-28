@@ -1,6 +1,3 @@
-- [ ] telescope integration
-    - [x] selection
-    - [ ] deletion
 - [ ] occasional but repeatable odd issues when switching between sessions
     - [ ] async error having to do with invalid buffer
 - [ ] cleanup config
