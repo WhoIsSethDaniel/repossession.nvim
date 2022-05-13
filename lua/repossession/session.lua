@@ -72,6 +72,17 @@ local is_ignored_buffer = function(buffer)
   return false
 end
 
+-- see https://github.com/rmagatti/auto-session/wiki/Troubleshooting
+-- for reason for this code
+local close_all_floating_windows = function()
+  for _, win in ipairs(vim.api.nvim_list_wins()) do
+    local wconfig = vim.api.nvim_win_get_config(win)
+    if wconfig.relative ~= '' then
+      vim.api.nvim_win_close(win, false)
+    end
+  end
+end
+
 local buffers_status = function()
   local status = {
     savable = {},
@@ -140,6 +151,7 @@ local save_session = function(session_name, filter)
 
   if filter then
     wipe_ignored_buffers()
+    close_all_floating_windows()
   end
 
   run_hook 'pre_save_session'
