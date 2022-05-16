@@ -1,4 +1,5 @@
 - [x] auto close floating windows: https://github.com/rmagatti/auto-session/wiki/Troubleshooting
+- [ ] branch switching
 - [ ] if navigate to dir and set cwd and save session, session saving does not start
 - [ ] occasional but repeatable odd issues when switching between sessions
     - [ ] async error having to do with invalid buffer
