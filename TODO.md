@@ -1,4 +1,5 @@
 - [x] auto close floating windows: https://github.com/rmagatti/auto-session/wiki/Troubleshooting
+- [ ] check that this doesn't apply to repossession: https://github.com/rmagatti/auto-session/issues/117
 - [ ] branch switching
 - [ ] if navigate to dir and set cwd and save session, session saving does not start
 - [ ] occasional but repeatable odd issues when switching between sessions
