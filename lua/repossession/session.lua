@@ -77,7 +77,7 @@ end
 local close_all_floating_windows = function()
   for _, win in ipairs(vim.api.nvim_list_wins()) do
     local wconfig = vim.api.nvim_win_get_config(win)
-    if wconfig.relative ~= '' then
+    if wconfig and wconfig.relative ~= '' then
       vim.api.nvim_win_close(win, false)
     end
   end
@@ -85,14 +85,14 @@ end
 
 local buffers_status = function()
   local status = {
-    savable = {},
+    saveable = {},
     ignored = {},
   }
   for _, buffer in ipairs(vim.api.nvim_list_bufs()) do
     if vim.api.nvim_buf_is_valid(buffer) and is_ignored_buffer(buffer) then
       table.insert(status.ignored, buffer)
     else
-      table.insert(status.savable, buffer)
+      table.insert(status.saveable, buffer)
     end
   end
   return status
@@ -102,6 +102,14 @@ local wipe_buffers = function(buffers)
   for _, buffer in ipairs(buffers) do
     vim.api.nvim_buf_delete(buffer, { force = true })
   end
+end
+
+local wipe_non_visible_buffers = function()
+  local visible = vim.tbl_map(vim.api.nvim_win_get_buf, vim.api.nvim_list_wins())
+  local hidden = vim.tbl_filter(function(buf)
+    return not vim.tbl_contains(visible, buf)
+  end, vim.api.nvim_list_bufs())
+  wipe_buffers(hidden)
 end
 
 local wipe_ignored_buffers = function()
