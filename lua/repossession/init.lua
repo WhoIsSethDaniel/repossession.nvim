@@ -70,7 +70,8 @@ local dir_list = function(name, list)
     return cached_lists[name]
   end
   cached_lists[name] = {}
-  for _, dir in ipairs(list) do
+  local dirs = type(list) == 'table' and list or list()
+  for _, dir in ipairs(dirs) do
     for _, gdir in
       ipairs(vim.tbl_filter(function(f)
         return vim.fn.isdirectory(f) > 0 and true or false
@@ -112,7 +113,7 @@ end
 
 local auto_load_session = function()
   local session_name = Path:new():absolute()
-  if auto_session_enabled() and dir_is_acceptable(session_name) then
+  if auto_session_enabled() then
     load_session(session_name, true)
   end
 end
