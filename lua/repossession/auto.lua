@@ -2,11 +2,11 @@ local Path = require 'plenary.path'
 local scan = require 'plenary.scandir'
 local config = require 'repossession.config'
 
-local encode_session_name = function(dir)
+local encode_path = function(dir)
   return dir:gsub(Path.path.sep, '%%'):gsub('%%*$', '')
 end
 
-local unencode_session_name = function(dir)
+local unencode_path = function(dir)
   return dir:gsub('%%', Path.path.sep)
 end
 
@@ -19,7 +19,7 @@ local saved_sessions_dir = function()
 end
 
 local session_path_from_name = function(session_name)
-  local encoded_name = encode_session_name(session_name)
+  local encoded_name = encode_path(session_name)
   return Path:new(saved_sessions_dir(), encoded_name .. '.vim')
 end
 
@@ -169,14 +169,12 @@ local save_session = function(session_name, filter)
     vim.api.nvim_err_writeln(string.format('Failed to save session: %s, reason: %s', session_name, result))
   end
 
-  set_current_session(session_name)
-
   run_hook 'post_save_session'
 
   vim.opt.sessionoptions = oldopts
 end
 
-local load_session = function(session_name, force_load)
+local load_session = function(session_name, force_load, cb)
   local session_path = session_path_from_name(session_name)
 
   if not session_path:exists() then
@@ -210,6 +208,9 @@ local load_session = function(session_name, force_load)
       vim.api.nvim_err_writeln(string.format('Failed to restore session: %s, reason: %s', session_name, result))
     end
     set_current_session(session_name)
+    if cb then
+      cb()
+    end
     run_hook 'post_load_session'
     current['loading'] = false
   end)
@@ -219,7 +220,7 @@ local complete_sessions = function()
   local session_paths = scan.scan_dir(saved_sessions_dir():absolute(), { depth = 1, add_dirs = false })
   local session_names = {}
   for _, session_path in ipairs(session_paths) do
-    local name = unencode_session_name(Path:new(session_path):name()):gsub('%.vim$', '')
+    local name = unencode_path(Path:new(session_path):name()):gsub('%.vim$', '')
     table.insert(session_names, name)
   end
   return session_names
