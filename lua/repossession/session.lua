@@ -223,7 +223,7 @@ local complete_sessions = function(lead)
   local session_names = {}
   for _, session_path in ipairs(session_paths) do
     local name = unencode_session_name(Path:new(session_path):name()):gsub('%.vim$', '')
-    if name:match('^' .. lead) then
+    if lead == nil or name:match('^' .. lead) then
       table.insert(session_names, name)
     end
   end
