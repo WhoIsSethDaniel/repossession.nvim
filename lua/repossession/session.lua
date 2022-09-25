@@ -131,6 +131,9 @@ local delete_sessions = function(session_names)
       )
     else
       session_path:rm()
+      if session_name == current_session() then
+        set_current_session()
+      end
     end
   end
   run_hook 'post_delete_session'
