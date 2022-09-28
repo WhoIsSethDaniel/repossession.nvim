@@ -57,13 +57,8 @@ local auto_save_session = function()
   end
 end
 
-local continuous_save_session = function()
-  auto_save_session()
-end
-
 return {
   auto_save_session = auto_save_session,
-  continuous_save_session = continuous_save_session,
   load_session = load_session,
   save_session = save_session,
   delete_sessions = session.delete_sessions,

@@ -29,7 +29,7 @@ api.nvim_create_autocmd('VimLeavePre', {
 api.nvim_create_autocmd('BufEnter', {
   group = REPOGRP,
   pattern = '*',
-  callback = repo.continuous_save_session,
+  callback = repo.auto_save_session,
 })
 api.nvim_create_autocmd('StdinReadPre', {
   group = REPOGRP,

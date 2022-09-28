@@ -20,8 +20,6 @@ function config.setup(conf)
   vim.validate {
     auto = { new.auto, 'b' },
     session_dir = { new.session_dir, 't' },
-    whitelist_dirs = { new.whitelist_dirs, { 't', 'f' } },
-    blacklist_dirs = { new.blacklist_dirs, { 't', 'f' } },
     ignore_ft = { new.ignore_ft, 't' },
     ignore_bt = { new.ignore_bt, 't' },
     hooks = { new.hooks, 't' },
