@@ -116,10 +116,6 @@ local wipe_ignored_buffers = function()
   wipe_buffers(buffers_status().ignored)
 end
 
-local wipe_all_buffers = function()
-  wipe_buffers(vim.api.nvim_list_bufs())
-end
-
 local delete_sessions = function(session_names)
   run_hook 'pre_delete_session'
   for _, session_name in ipairs(session_names) do
@@ -207,7 +203,7 @@ local load_session = function(session_name, force_load)
   current['loading'] = true
   vim.schedule(function()
     run_hook 'pre_load_session'
-    wipe_all_buffers()
+
     local ok, result = pcall(vim.api.nvim_command, 'silent source ' .. vim_escaped_path(session_path:absolute()))
     if not ok then
       vim.api.nvim_err_writeln(string.format('Failed to restore session: %s, reason: %s', session_name, result))
