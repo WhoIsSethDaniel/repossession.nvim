@@ -218,7 +218,7 @@ local complete_sessions = function(lead)
   local session_paths = scan.scan_dir(saved_sessions_dir():absolute(), { depth = 1, add_dirs = false })
   local session_names = {}
   for _, session_path in ipairs(session_paths) do
-    local name = unencode_session_name(Path:new(session_path):name()):gsub('%.vim$', '')
+    local name = unencode_session_name(vim.fs.basename(Path:new(session_path).filename)):gsub('%.vim$', '')
     if lead == nil or name:match('^' .. lead) then
       table.insert(session_names, name)
     end
