@@ -51,6 +51,52 @@ local save_session = function(name)
   session.save_session(session_name, is_exiting())
 end
 
+local run_copy_rename = function(args, force, f)
+  local source, target
+  if #args == 1 then
+    source = session.current_session()
+    target = args[1]
+    if source == nil then
+      vim.api.nvim_err_writeln 'No current session. Must provide two arguments.'
+      return
+    end
+  elseif #args == 2 then
+    source = args[1]
+    target = args[2]
+  elseif #args == 0 then
+    vim.api.nvim_err_writeln 'Not enough arguments. Requires at least one.'
+    return
+  else
+    vim.api.nvim_err_writeln 'Too many arguments. Requires no more than two.'
+    return
+  end
+
+  local source_path = session.session_path_from_name(source)
+  local target_path = session.session_path_from_name(target)
+
+  if not source_path:is_file() then
+    vim.api.nvim_err_writeln(string.format("session '%s' does not exist or is not a file.", source))
+    return
+  end
+  if target_path:is_file() and not force then
+    vim.api.nvim_err_writeln(string.format("target file '%s' already exists.", target))
+    return
+  end
+  f(source_path, target_path)
+end
+
+local rename_session = function(args)
+  run_copy_rename(args, false, function(source, target)
+    source:rename { new_name = target:absolute() }
+  end)
+end
+
+local copy_session = function(args, force)
+  run_copy_rename(args, force, function(source, target)
+    source:copy { destination = target:absolute() }
+  end)
+end
+
 local auto_save_session = function()
   if is_safe_to_save() and auto_session_enabled() then
     save_session(session.current_session())
@@ -61,6 +107,8 @@ return {
   auto_save_session = auto_save_session,
   load_session = load_session,
   save_session = save_session,
+  copy_session = copy_session,
+  rename_session = rename_session,
   delete_sessions = session.delete_sessions,
   current_session_name = session.current_session,
   setup = config.setup,

@@ -19,6 +19,14 @@ command('SessionSave', function(a)
   repo.save_session(a.fargs)
 end, { nargs = '?', force = true, complete = repo.complete_sessions })
 
+command('SessionCopy', function(a)
+  repo.copy_session(a.fargs, a.bang)
+end, { bang = true, nargs = '*', force = true, complete = repo.complete_sessions })
+
+command('SessionRename', function(a)
+  repo.rename_session(a.fargs)
+end, { nargs = '*', force = true, complete = repo.complete_sessions })
+
 local REPOGRP = api.nvim_create_augroup('repossession', { clear = true })
 api.nvim_create_autocmd('VimLeavePre', {
   group = REPOGRP,

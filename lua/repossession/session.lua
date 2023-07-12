@@ -232,4 +232,5 @@ return {
   save_session = save_session,
   load_session = load_session,
   delete_sessions = delete_sessions,
+  session_path_from_name = session_path_from_name,
 }
