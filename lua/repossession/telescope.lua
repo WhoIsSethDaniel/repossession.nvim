@@ -16,40 +16,42 @@ local M = {}
 
 M['sessions'] = function(opts)
   opts = opts or {}
-  pickers.new(opts, {
-    -- previewer = conf.file_previewer(opts),
-    prompt_title = 'Saved Sessions',
-    finder = finders.new_table {
-      results = session.complete_sessions(),
-      entry_maker = make_entry.gen_from_string(),
-    },
-    sorter = conf.file_sorter(opts),
-    attach_mappings = function(prompt_bufnr, map)
-      actions.select_default:replace(function()
-        actions.close(prompt_bufnr)
-        local selection = action_state.get_selected_entry()
-        session.load_session(selection)
-      end)
-      actions.remove_selection:enhance {
-        post = function()
+  pickers
+    .new(opts, {
+      -- previewer = conf.file_previewer(opts),
+      prompt_title = 'Saved Sessions',
+      finder = finders.new_table {
+        results = session.complete_sessions(),
+        entry_maker = make_entry.gen_from_string(),
+      },
+      sorter = conf.file_sorter(opts),
+      attach_mappings = function(prompt_bufnr, map)
+        actions.select_default:replace(function()
+          actions.close(prompt_bufnr)
           local selection = action_state.get_selected_entry()
-          session.delete_sessions(selection)
+          session.load_session(selection)
+        end)
+        actions.remove_selection:enhance {
+          post = function()
+            local selection = action_state.get_selected_entry()
+            session.delete_sessions(selection)
 
-          -- redraw with new input
-          local picker = action_state.get_current_picker(prompt_bufnr)
-          for i, v in pairs(picker.finder.results) do
-            if v == selection then
-              table.remove(picker.finder.results, i)
+            -- redraw with new input
+            local picker = action_state.get_current_picker(prompt_bufnr)
+            for i, v in pairs(picker.finder.results) do
+              if v == selection then
+                table.remove(picker.finder.results, i)
+              end
             end
-          end
-          picker:refresh()
-        end,
-      }
-      map('i', '<C-d>', actions.remove_selection)
-      map('n', '<C-d>', actions.remove_selection)
-      return true
-    end,
-  }):find()
+            picker:refresh()
+          end,
+        }
+        map('i', '<C-d>', actions.remove_selection)
+        map('n', '<C-d>', actions.remove_selection)
+        return true
+      end,
+    })
+    :find()
 end
 
 function M.register()
