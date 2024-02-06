@@ -1,5 +1,4 @@
 local Path = require 'plenary.path'
-local scan = require 'plenary.scandir'
 local config = require 'repossession.config'
 
 local encode_session_name = function(dir)
@@ -215,7 +214,8 @@ local load_session = function(session_name, force_load)
 end
 
 local complete_sessions = function(lead)
-  local session_paths = scan.scan_dir(saved_sessions_dir():absolute(), { depth = 1, add_dirs = false })
+  local session_paths =
+    require('plenary.scandir').scan_dir(saved_sessions_dir():absolute(), { depth = 1, add_dirs = false })
   local session_names = {}
   for _, session_path in ipairs(session_paths) do
     local name = unencode_session_name(vim.fs.basename(Path:new(session_path).filename)):gsub('%.vim$', '')
