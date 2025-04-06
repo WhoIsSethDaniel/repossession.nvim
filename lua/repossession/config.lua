@@ -17,13 +17,15 @@ function config.setup(conf)
   if type(new.session_dir) == 'string' then
     new.session_dir = Path:new(new.session_dir)
   end
-  vim.validate {
-    auto = { new.auto, 'b' },
-    session_dir = { new.session_dir, 't' },
-    ignore_ft = { new.ignore_ft, 't' },
-    ignore_bt = { new.ignore_bt, 't' },
-    hooks = { new.hooks, 't' },
-  }
+  for key, value in pairs {
+    auto = { new.auto, 'boolean' },
+    session_dir = { new.session_dir, 'table' },
+    ignore_ft = { new.ignore_ft, 'table' },
+    ignore_bt = { new.ignore_bt, 'table' },
+    hooks = { new.hooks, 'table' },
+  } do
+    vim.validate(key, value[1], value[2], value[3])
+  end
   setmetatable(config, { __index = new })
 end
 
