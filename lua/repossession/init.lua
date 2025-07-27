@@ -1,5 +1,5 @@
-local session = require 'repossession.session'
 local config = require 'repossession.config'
+local session = require 'repossession.session'
 
 local extract_session_name = function(name)
   if type(name) == 'table' then
@@ -57,17 +57,17 @@ local run_copy_rename = function(args, force, f)
     source = session.current_session()
     target = args[1]
     if source == nil then
-      vim.api.nvim_err_writeln 'No current session. Must provide two arguments.'
+      vim.notify('No current session. Must provide two arguments.', vim.log.levels.ERROR)
       return
     end
   elseif #args == 2 then
     source = args[1]
     target = args[2]
   elseif #args == 0 then
-    vim.api.nvim_err_writeln 'Not enough arguments. Requires at least one.'
+    vim.notify('Not enough arguments. Requires at least one.', vim.log.levels.ERROR)
     return
   else
-    vim.api.nvim_err_writeln 'Too many arguments. Requires no more than two.'
+    vim.notify('Too many arguments. Requires no more than two.', vim.log.levels.ERROR)
     return
   end
 
@@ -75,11 +75,11 @@ local run_copy_rename = function(args, force, f)
   local target_path = session.session_path_from_name(target)
 
   if not source_path:is_file() then
-    vim.api.nvim_err_writeln(string.format("session '%s' does not exist or is not a file.", source))
+    vim.notify(string.format("session '%s' does not exist or is not a file.", source), vim.log.levels.ERROR)
     return
   end
   if target_path:is_file() and not force then
-    vim.api.nvim_err_writeln(string.format("target file '%s' already exists.", target))
+    vim.notify(string.format("target file '%s' already exists.", target), vim.log.levels.ERROR)
     return
   end
   f(source_path, target_path)

@@ -2,8 +2,8 @@ local api = vim.api
 local command = api.nvim_create_user_command
 local repo = require 'repossession'
 
-if vim.fn.has 'nvim-0.8' == 0 then
-  api.nvim_err_writeln 'repossession requires at least Neovim 0.8.0'
+if vim.fn.has 'nvim-0.12' == 0 then
+  vim.notify('repossession requires at least Neovim 0.12.0', vim.log.levels.ERROR)
   return
 end
 

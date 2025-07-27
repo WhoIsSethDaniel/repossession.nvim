@@ -52,7 +52,7 @@ end
 
 local is_safe_to_load = function()
   for _, buffer in ipairs(vim.api.nvim_list_bufs()) do
-    if vim.api.nvim_buf_get_option(buffer, 'modified') then
+    if vim.api.nvim_get_option_value('modified', { buf = buffer }) then
       return false
     end
   end
@@ -60,8 +60,8 @@ local is_safe_to_load = function()
 end
 
 local is_ignored_buffer = function(buffer)
-  local ft = vim.api.nvim_buf_get_option(buffer, 'filetype')
-  local bt = vim.api.nvim_buf_get_option(buffer, 'buftype')
+  local ft = vim.api.nvim_get_option_value('filetype', { buf = buffer })
+  local bt = vim.api.nvim_get_option_value('buftype', { buf = buffer })
   if vim.tbl_contains(config.ignore_ft, ft) or vim.tbl_contains(config.ignore_bt, bt) then
     return true
   end
@@ -121,8 +121,9 @@ local delete_sessions = function(session_names)
     local session_path = session_path_from_name(session_name)
 
     if not session_path:is_file() then
-      vim.api.nvim_err_writeln(
-        string.format("session '%s' does not exist or is not a file. Cannot delete session.", session_name)
+      vim.notify(
+        string.format("session '%s' does not exist or is not a file. Cannot delete session.", session_name),
+        vim.log.levels.ERROR
       )
     else
       session_path:rm()
@@ -164,7 +165,7 @@ local save_session = function(session_name, filter)
 
   local ok, result = pcall(vim.api.nvim_command, 'mksession! ' .. vim_escaped_path(session_path:absolute()))
   if not ok then
-    vim.api.nvim_err_writeln(string.format('Failed to save session: %s, reason: %s', session_name, result))
+    vim.notify(string.format('Failed to save session: %s, reason: %s', session_name, result), vim.log.levels.ERROR)
   end
 
   set_current_session(session_name)
@@ -179,15 +180,19 @@ local load_session = function(session_name, force_load)
 
   if not session_path:exists() then
     if not force_load then
-      vim.api.nvim_err_writeln(
-        string.format("session '%s' does not exist. Cannot load non-existent session.", session_name)
+      vim.notify(
+        string.format("session '%s' does not exist. Cannot load non-existent session.", session_name),
+        vim.log.levels.ERROR
       )
     end
     return
   end
 
   if not force_load and not is_safe_to_load() then
-    vim.api.nvim_err_writeln 'Some buffers are un-saved. Use ! to save all buffers (if possible) and load the session.'
+    vim.notify(
+      'Some buffers are un-saved. Use ! to save all buffers (if possible) and load the session.',
+      vim.log.levels.ERROR
+    )
     return
   end
 
@@ -205,7 +210,7 @@ local load_session = function(session_name, force_load)
 
     local ok, result = pcall(vim.api.nvim_command, 'silent source ' .. vim_escaped_path(session_path:absolute()))
     if not ok then
-      vim.api.nvim_err_writeln(string.format('Failed to restore session: %s, reason: %s', session_name, result))
+      vim.notify(string.format('Failed to restore session: %s, reason: %s', session_name, result), vim.log.levels.ERROR)
     end
     set_current_session(session_name)
     run_hook 'post_load_session'

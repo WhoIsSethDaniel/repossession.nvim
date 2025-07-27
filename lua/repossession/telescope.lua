@@ -4,13 +4,13 @@ if not has_telescope then
   error 'This plugin requires telescope.nvim (https://github.com/nvim-telescope/telescope.nvim)'
 end
 
-local pickers = require 'telescope.pickers'
 local finders = require 'telescope.finders'
 local make_entry = require 'telescope.make_entry'
+local pickers = require 'telescope.pickers'
 local conf = require('telescope.config').values
-local session = require 'repossession'
-local actions = require 'telescope.actions'
 local action_state = require 'telescope.actions.state'
+local actions = require 'telescope.actions'
+local session = require 'repossession'
 
 local M = {}
 
