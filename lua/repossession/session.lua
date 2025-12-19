@@ -202,7 +202,9 @@ local load_session = function(session_name, force_load)
   -- gotta do this outside of the schedule;
   -- this kills all clients for all buffers;
   -- see :h vim.lsp.stop_client()
-  vim.lsp.stop_client(vim.lsp.get_clients())
+  for _, c in ipairs(vim.lsp.get_clients()) do
+    c:stop()
+  end
 
   current['loading'] = true
   vim.schedule(function()
