@@ -5,6 +5,7 @@ local session = require 'repossession'
 function M.sessions()
   Snacks.picker.pick {
     title = 'Choose a session to load',
+    layout = { preview = false },
     finder = function()
       local items = {}
       for _, name in pairs(session.complete_sessions()) do
