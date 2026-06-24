@@ -88,6 +88,7 @@ end
 local rename_session = function(args)
   run_copy_rename(args, false, function(source, target)
     source:rename { new_name = target:absolute() }
+    save_session(args[2])
   end)
 end
 
